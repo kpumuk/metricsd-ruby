@@ -25,7 +25,7 @@ module Metricsd
   #     'db.pool.pending'   => db_stats[:pending],
   #   }, :group => 'doc_timestamp')
   #
-  # You can specify message source using :source => 'src' option. In this case
+  # You can specify message source using <tt>:source => 'src'</tt> option. In this case
   # you will be able to see summary graphs and graphs per source:
   #
   #   # Generate graphs for all tables, and each single table.
@@ -39,7 +39,7 @@ module Metricsd
   #   # ... or you can pass an empty string with the same effect.
   #   Metricsd::Client.record_success("hbase.reads", :source => '')
   #
-  # You can group your metrics using :group option. In this case metrics will be
+  # You can group your metrics using <tt>:group</tt> option. In this case metrics will be
   # displayed together on the summary page.
   #
   #   # Group metrics using :group option.
@@ -51,6 +51,19 @@ module Metricsd
     class << self
       # Record complete hit info. Time should be a floating point
       # number of seconds.
+      #
+      # It creates two metrics:
+      # * +your.metric.count+ with counts of failed and succeded events
+      # * +your.metric.time+ with time statistics
+      #
+      # @param [String] metric is the metric name (like app.docs.upload)
+      # @param [Boolean] is_success indicating whether request was successful.
+      # @param [Float] time floating point number of seconds.
+      # @param [Hash] opts options.
+      # @option opts [String] :sep ("_") separator used to add suffixes +count+ and +time+.
+      # @option opts [String] :group metrics group.
+      # @option opts [String] :source metric source.
+      #
       def record_hit(metric, is_success, time, opts = {})
         sep = opts[:sep] || opts[:separator] || '_'
         record_internal({
@@ -60,26 +73,51 @@ module Metricsd
         )
       end
 
-      # Record success hit.
+      # Record succeded boolean event.
+      #
+      # It creates a single metric:
+      # * +your.metric.count+ with numbers of failed and succeded events
+      #
+      # @param [String] metric is the metric name (like app.docs.upload)
+      # @param [Hash] opts options.
+      # @option opts [String] :sep ("_") separator used to add suffixes +count+ and +time+.
+      # @option opts [String] :group metrics group.
+      # @option opts [String] :source metric source.
+      #
       def record_success(metric, opts = {})
         sep = opts[:sep] || opts[:separator] || '_'
-        record_internal({
-            "#{metric}#{sep}count" => 1
-          }, opts
-        )
+        record_internal({"#{metric}#{sep}count" => 1}, opts)
       end
 
-      # Record success failure.
+      # Record failed boolean event.
+      #
+      # It creates a single metric:
+      # * +your.metric.count+ with numbers of failed and succeded events
+      #
+      # @param [String] metric is the metric name (like app.docs.upload)
+      # @param [Hash] opts options.
+      # @option opts [String] :sep ("_") separator used to add suffixes +count+ and +time+.
+      # @option opts [String] :group metrics group.
+      # @option opts [String] :source metric source.
+      #
       def record_failure(metric, opts = {})
         sep = opts[:sep] || opts[:separator] || '_'
-        record_internal({
-            "#{metric}#{sep}count" => -1
-          }, opts
-        )
+        record_internal({"#{metric}#{sep}count" => -1}, opts)
       end
 
       # Record timing info. Time should be a floating point
       # number of seconds.
+      #
+      # It creates a single metric:
+      # * +your.metric.time+ with time statistics
+      #
+      # @param [String] metric is the metric name (like app.docs.upload)
+      # @param [Float] time floating point number of seconds.
+      # @param [Hash] opts options.
+      # @option opts [String] :sep ("_") separator used to add suffixes +count+ and +time+.
+      # @option opts [String] :group metrics group.
+      # @option opts [String] :source metric source.
+      #
       def record_time(metric, time = nil, opts = {}, &block)
         opts, time = time, nil if Hash === time
         sep = opts[:sep] || opts[:separator] || '_'
@@ -87,21 +125,43 @@ module Metricsd
           raise ArgumentError, "You should pass a block if time is not given" unless block_given?
           time = Benchmark.measure(&block).real
         end
-        record_internal({
-            "#{metric}#{sep}time" => (time * 1000).round
-          }, opts
-        )
+        record_internal({"#{metric}#{sep}time" => (time * 1000).round}, opts)
       end
 
       # Record an integer value.
+      #
+      # It creates a single metric:
+      # * +your.metric+ with values statistics
+      #
+      # @param [String] metric is the metric name (like app.docs.upload)
+      # @param [Integer] value metric value.
+      # @param [Hash] opts options.
+      # @option opts [String] :sep ("_") separator used to add suffixes +count+ and +time+.
+      # @option opts [String] :group metrics group.
+      # @option opts [String] :source metric source.
+      #
       def record_value(metric, value, opts = {})
-        record_internal({
-            metric => value.round
-          }, opts
-        )
+        record_internal({metric => value.round}, opts)
       end
 
-      # Record multiple values.
+      # Record multiple integer values.
+      #
+      # It creates a metric for each entry in +metrics+ Hash:
+      # * +your.metric+ with values statistics
+      #
+      # @param [Hash] metrics a +Hash+ that maps metrics names to their values.
+      # @param [Hash] opts options.
+      # @option opts [String] :sep ("_") separator used to add suffixes +count+ and +time+.
+      # @option opts [String] :group metrics group.
+      # @option opts [String] :source metric source.
+      #
+      # @example
+      #   Metricsd::Client.record_values(
+      #     'db.pool.reserved'  => db_stats[:reserved],
+      #     'db.pool.available' => db_stats[:available],
+      #     'db.pool.pending'   => db_stats[:pending],
+      #   )
+      #
       def record_values(metrics, opts = {})
         record_internal(metrics, opts)
       end
