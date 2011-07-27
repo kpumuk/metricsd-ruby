@@ -1,3 +1,9 @@
+## 0.2.1 (July 27, 2011)
+
+Bugfixes:
+
+  - Fixed problem with safe_send under Goliath
+
 ## 0.2.0 (July 27, 2011)
 
 Features:
