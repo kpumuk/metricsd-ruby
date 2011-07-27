@@ -23,6 +23,13 @@ describe Metricsd::Client do
       @socket.should_not_receive(:send)
       Metricsd::Client.record_value('custom.metric', 5)
     end
+
+    it 'should create and cache UDPSocket in collector_socket method' do
+      Metricsd::Client.unstub!(:collector_socket)
+      sock = Metricsd::Client.send(:collector_socket)
+      sock.should be_a(UDPSocket)
+      Metricsd::Client.send(:collector_socket).should be(sock)
+    end
   end
 
   describe '.record_hit' do

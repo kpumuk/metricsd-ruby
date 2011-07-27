@@ -175,9 +175,8 @@ module Metricsd
 
       # Returns a UDP socket used to send metrics to MetricsD.
       def collector_socket
-        @@socket ||= begin
-          @@socket = UDPSocket.new
-          @@socket.connect(Metricsd.server_host, Metricsd.server_port)
+        @@socket ||= UDPSocket.new.tap do |sock|
+          sock.connect(Metricsd.server_host, Metricsd.server_port)
         end
       end
 
@@ -203,17 +202,17 @@ module Metricsd
           end
 
           if msg.size + s.size + (msg.size > 0 ? 1 : 0) > 250
-            safe_send_packet(msg)
+            safe_send(msg)
             msg = ''
           end
           msg << (msg.size > 0 ? ';' : '') << s
         end
-        safe_send_packet(msg) if msg.size > 0
+        safe_send(msg) if msg.size > 0
       end
 
       # Sends a string to the MetricsD. Should never raise any network-specific
       # exceptions, but log them instead, and silently return.
-      def safe_send_packet(msg)
+      def safe_send(msg)
         collector_socket.send(msg, 0)
         true
       rescue Errno::ECONNREFUSED => e

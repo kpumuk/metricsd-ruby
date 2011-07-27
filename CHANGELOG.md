@@ -1,3 +1,9 @@
+## 0.2.2 (July 27, 2011)
+
+Bugfixes:
+
+  - Fixed problem in connection establishing code
+
 ## 0.2.1 (July 27, 2011)
 
 Bugfixes:
