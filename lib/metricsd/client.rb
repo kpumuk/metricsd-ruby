@@ -106,12 +106,14 @@ module Metricsd
         record_internal(metrics, opts)
       end
 
+      # Reset and re-establish connection.
       def reset_connection!
         @@socket = nil
       end
 
     private
 
+      # Returns a UDP socket used to send metrics to MetricsD.
       def collector_socket
         @@socket ||= begin
           @@socket = UDPSocket.new
@@ -128,6 +130,8 @@ module Metricsd
         send_in_packets Array(metrics).map { |arg| pack(arg[0], arg[1], opts) }.sort
       end
 
+      # Combines string representations of metrics into packets of 250 bytes and
+      # sends them to MetricsD.
       def send_in_packets(strings)
         msg = ''
         strings.each do |s|
@@ -145,6 +149,8 @@ module Metricsd
         safe_send(msg) if msg.size > 0
       end
 
+      # Sends a string to the MetricsD. Should never raise any network-specific
+      # exceptions, but log them instead, and silently return.
       def safe_send(msg)
         collector_socket.send(msg, 0)
         true
@@ -154,6 +160,8 @@ module Metricsd
         false
       end
 
+      # Packs metric into a string representation according to the MetricsD
+      # protocol.
       def pack(key, value, opts)
         key = "#{opts[:group]}$#{key}" unless opts[:group].nil? || opts[:group].empty?
         opts[:source].empty? ? "#{key}:#{value}" : "#{opts[:source]}@#{key}:#{value}"
