@@ -1,4 +1,4 @@
-## 0.2.0 (development)
+## 0.2.0 (July 27, 2011)
 
 Features:
 
@@ -12,4 +12,5 @@ Features:
   - Allows to send multiple metrics in a single network packet
   - Splits metrics to several packets of 250 bytes or less
   - Allows to specify metrics parts separator (temporary solution until all the metrics will be migrated to "." separator)
+  - Logs network problems to logger and never throws errors like this.
   - 100% test coverage
