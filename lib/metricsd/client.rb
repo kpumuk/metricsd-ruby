@@ -224,7 +224,8 @@ module Metricsd
       # Packs metric into a string representation according to the MetricsD
       # protocol.
       def pack(key, value, opts)
-        key = "#{opts[:group]}$#{key}" unless opts[:group].nil? || opts[:group].empty?
+        group = opts[:group] || Metricsd.default_group || ''
+        key = "#{group}$#{key}" unless group.empty?
         opts[:source].empty? ? "#{key}:#{value}" : "#{opts[:source]}@#{key}:#{value}"
       end
     end

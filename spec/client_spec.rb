@@ -184,6 +184,24 @@ describe Metricsd::Client do
       @socket.should_receive(:send).with('test2@custom.metric:23', 0)
       Metricsd::Client.record_value('custom.metric', 23, :source => 'test2')
     end
+
+    it 'should apply default group if specified' do
+      Metricsd.default_group = 'grp'
+      @socket.should_receive(:send).with('all@grp$custom.metric:23', 0)
+      Metricsd::Client.record_value('custom.metric', 23)
+    end
+
+    it 'should override default group with the specified one' do
+      Metricsd.default_group = 'grp'
+      @socket.should_receive(:send).with('all@group$custom.metric:23', 0)
+      Metricsd::Client.record_value('custom.metric', 23, :group => 'group')
+    end
+
+    it 'should clear group, if there is a default one, and empty string specified' do
+      Metricsd.default_group = 'grp'
+      @socket.should_receive(:send).with('all@custom.metric:23', 0)
+      Metricsd::Client.record_value('custom.metric', 23, :group => '')
+    end
   end
 
   describe '.record_values' do

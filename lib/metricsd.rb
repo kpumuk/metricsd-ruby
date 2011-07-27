@@ -72,6 +72,16 @@ module Metricsd
       @@default_source = source
     end
 
+    # Gets the default group for all metrics.
+    def default_group
+      @@default_group
+    end
+
+    # Sets the default group for all metrics.
+    def default_group=(group)
+      @@default_group = group
+    end
+
     # Gets the logger used to output errors or warnings.
     def logger
       @@logger ||= if defined?(Rails)
@@ -95,6 +105,7 @@ module Metricsd
       @@enabled        = true
       @@source         = Socket.gethostname[/^([^.]+)/, 1]
       @@default_source = 'all'
+      @@default_group  = nil
       @@logger         = nil
     end
   end

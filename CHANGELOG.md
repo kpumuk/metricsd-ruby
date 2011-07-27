@@ -1,3 +1,9 @@
+## 0.2.3 (July 27, 2011)
+
+Features:
+
+  - Added ability to specify default group
+
 ## 0.2.2 (July 27, 2011)
 
 Bugfixes:

@@ -25,6 +25,10 @@ describe Metricsd do
       Metricsd.default_source.should == 'all'
     end
 
+    it 'should have default_group = nil' do
+      Metricsd.default_group.should be_nil
+    end
+
     it 'should create logger' do
       Metricsd.logger.should be_a(Logger)
     end
@@ -74,6 +78,11 @@ describe Metricsd do
     it 'should allow to change default_source' do
       Metricsd.default_source = 'nothing'
       Metricsd.default_source.should == 'nothing'
+    end
+
+    it 'should allow to change default_group' do
+      Metricsd.default_group = 'mygroup'
+      Metricsd.default_group.should == 'mygroup'
     end
 
     it 'should allow to change logger' do
