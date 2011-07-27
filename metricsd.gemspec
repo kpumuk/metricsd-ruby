@@ -11,6 +11,7 @@ Gem::Specification.new do |s|
   s.summary     = %q{Client library for MetricsD server}
   s.description = %q{}
 
+  s.add_development_dependency 'rake'
   s.add_development_dependency 'rspec'
   s.add_development_dependency 'guard-rspec'
   s.add_development_dependency 'rb-fsevent'
