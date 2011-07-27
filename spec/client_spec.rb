@@ -5,7 +5,9 @@ describe Metricsd::Client do
   before :each do
     @socket = mock('Socket')
     Metricsd::Client.stub!(:collector_socket => @socket)
-    Metricsd.stub!(:source => 'test')
+    # Global settings
+    Metricsd.reset_defaults!
+    Metricsd.source = 'test'
   end
 
   describe 'connection' do
@@ -13,6 +15,12 @@ describe Metricsd::Client do
       @socket.should_receive(:send).and_raise(Errno::ECONNREFUSED.new('exception from test'))
       Metricsd.logger.should_receive(:error).once.with(match(/exception from test/))
       Metricsd.logger.should_receive(:error).at_least(1) # stacktrace
+      Metricsd::Client.record_value('custom.metric', 5)
+    end
+
+    it 'should not send anything to the socket if disabled' do
+      Metricsd.disable!
+      @socket.should_not_receive(:send)
       Metricsd::Client.record_value('custom.metric', 5)
     end
   end

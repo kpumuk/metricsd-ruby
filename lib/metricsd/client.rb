@@ -123,6 +123,8 @@ module Metricsd
 
       # Send informating to the RRD collector daemon using UDP protocol.
       def record_internal(metrics, opts = {})
+        return unless Metricsd.enabled?
+
         opts = { :source => Metricsd.default_source }.update(opts)
         opts[:source] = Metricsd.source if opts[:source].empty?
 

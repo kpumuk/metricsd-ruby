@@ -27,6 +27,27 @@ module Metricsd
       Client.reset_connection!
     end
 
+    # Get the value indicating whether Metricsd is enabled.
+    def enabled?
+      !!@@enabled
+    end
+    alias :enabled :enabled?
+
+    # Sets the value indicating whether Metricsd is enabled.
+    def enabled=(enabled)
+      @@enabled = !!enabled
+    end
+
+    # Enables Metricsd client.
+    def enable!
+      @@enabled = true
+    end
+
+    # Disables Metricsd client.
+    def disable!
+      @@enabled = false
+    end
+
     # Gets the source used to record host-specific metrics. Default is the
     # first part of the hostname (e.g. "test" for "test.host.com").
     def source
@@ -71,6 +92,7 @@ module Metricsd
     def reset_defaults!
       @@server_host    = '127.0.0.1'
       @@server_port    = 6311
+      @@enabled        = true
       @@source         = Socket.gethostname[/^([^.]+)/, 1]
       @@default_source = 'all'
       @@logger         = nil

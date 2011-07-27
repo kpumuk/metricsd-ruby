@@ -28,6 +28,11 @@ describe Metricsd do
     it 'should create logger' do
       Metricsd.logger.should be_a(Logger)
     end
+
+    it 'should be enabled' do
+      Metricsd.enabled?.should be_true
+      Metricsd.enabled.should be_true
+    end
   end
 
   context 'setters' do
@@ -45,6 +50,20 @@ describe Metricsd do
       expect {
         Metricsd.server_port = 'aaa'
       }.to raise_error
+    end
+
+    it 'should allow to enabled and disable client' do
+      Metricsd.enabled = false
+      Metricsd.should_not be_enabled
+
+      Metricsd.enable!
+      Metricsd.should be_enabled
+
+      Metricsd.disable!
+      Metricsd.should_not be_enabled
+
+      Metricsd.enabled = true
+      Metricsd.should be_enabled
     end
 
     it 'should allow to change source' do
