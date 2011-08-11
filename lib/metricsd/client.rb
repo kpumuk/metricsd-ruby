@@ -60,15 +60,13 @@ module Metricsd
       # @param [Boolean] is_success indicating whether request was successful.
       # @param [Float] time floating point number of seconds.
       # @param [Hash] opts options.
-      # @option opts [String] :sep ("_") separator used to add suffixes +count+ and +time+.
       # @option opts [String] :group metrics group.
       # @option opts [String] :source metric source.
       #
       def record_hit(metric, is_success, time, opts = {})
-        sep = opts[:sep] || opts[:separator] || '_'
         record_internal({
-            "#{metric}#{sep}count" => is_success ? 1 : -1,
-            "#{metric}#{sep}time"  => (time * 1000).round
+            "#{metric}.status" => is_success ? 1 : -1,
+            "#{metric}.time"   => (time * 1000).round
           }, opts
         )
       end
@@ -80,13 +78,11 @@ module Metricsd
       #
       # @param [String] metric is the metric name (like app.docs.upload)
       # @param [Hash] opts options.
-      # @option opts [String] :sep ("_") separator used to add suffixes +count+ and +time+.
       # @option opts [String] :group metrics group.
       # @option opts [String] :source metric source.
       #
       def record_success(metric, opts = {})
-        sep = opts[:sep] || opts[:separator] || '_'
-        record_internal({"#{metric}#{sep}count" => 1}, opts)
+        record_internal({"#{metric}.status" => 1}, opts)
       end
 
       # Record failed boolean event.
@@ -96,13 +92,11 @@ module Metricsd
       #
       # @param [String] metric is the metric name (like app.docs.upload)
       # @param [Hash] opts options.
-      # @option opts [String] :sep ("_") separator used to add suffixes +count+ and +time+.
       # @option opts [String] :group metrics group.
       # @option opts [String] :source metric source.
       #
       def record_failure(metric, opts = {})
-        sep = opts[:sep] || opts[:separator] || '_'
-        record_internal({"#{metric}#{sep}count" => -1}, opts)
+        record_internal({"#{metric}.status" => -1}, opts)
       end
 
       # Record timing info. Time should be a floating point
@@ -114,18 +108,16 @@ module Metricsd
       # @param [String] metric is the metric name (like app.docs.upload)
       # @param [Float] time floating point number of seconds.
       # @param [Hash] opts options.
-      # @option opts [String] :sep ("_") separator used to add suffixes +count+ and +time+.
       # @option opts [String] :group metrics group.
       # @option opts [String] :source metric source.
       #
       def record_time(metric, time = nil, opts = {}, &block)
         opts, time = time, nil if Hash === time
-        sep = opts[:sep] || opts[:separator] || '_'
         if time.nil?
           raise ArgumentError, "You should pass a block if time is not given" unless block_given?
           time = Benchmark.measure(&block).real
         end
-        record_internal({"#{metric}#{sep}time" => (time * 1000).round}, opts)
+        record_internal({"#{metric}.time" => (time * 1000).round}, opts)
       end
 
       # Record an integer value.
@@ -136,13 +128,13 @@ module Metricsd
       # @param [String] metric is the metric name (like app.docs.upload)
       # @param [Integer] value metric value.
       # @param [Hash] opts options.
-      # @option opts [String] :sep ("_") separator used to add suffixes +count+ and +time+.
       # @option opts [String] :group metrics group.
       # @option opts [String] :source metric source.
       #
       def record_value(metric, value, opts = {})
         record_internal({metric => value.round}, opts)
       end
+      alias :record :record_value
 
       # Record multiple integer values.
       #
@@ -151,7 +143,6 @@ module Metricsd
       #
       # @param [Hash] metrics a +Hash+ that maps metrics names to their values.
       # @param [Hash] opts options.
-      # @option opts [String] :sep ("_") separator used to add suffixes +count+ and +time+.
       # @option opts [String] :group metrics group.
       # @option opts [String] :source metric source.
       #

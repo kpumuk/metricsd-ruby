@@ -1,3 +1,11 @@
+## 0.2.4 (August 11, 2011)
+
+Features:
+
+  - Time metrics should be recorded with .time suffix (was _time), status metrics - with .status (was _count)
+  - Added Client#record methods (alias of record_value)
+  - Removed separator option (it was a temporary solution)
+
 ## 0.2.3 (July 27, 2011)
 
 Features:

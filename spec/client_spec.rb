@@ -34,98 +34,83 @@ describe Metricsd::Client do
 
   describe '.record_hit' do
     it 'should send two metrics in a single packet' do
-      @socket.should_receive(:send).with('all@custom.metric_count:1;all@custom.metric_time:450', 0)
+      @socket.should_receive(:send).with('all@custom.metric.status:1;all@custom.metric.time:450', 0)
       Metricsd::Client.record_hit('custom.metric', true, 0.45)
     end
 
     it 'should handle is_success=false' do
-      @socket.should_receive(:send).with('all@custom.metric_count:-1;all@custom.metric_time:450', 0)
+      @socket.should_receive(:send).with('all@custom.metric.status:-1;all@custom.metric.time:450', 0)
       Metricsd::Client.record_hit('custom.metric', false, 0.45)
     end
 
-    it 'should change separator if :sep option is specified' do
-      @socket.should_receive(:send).with('all@custom.metric!count:1;all@custom.metric!time:450', 0)
-      Metricsd::Client.record_hit('custom.metric', true, 0.45, :sep => '!')
-    end
-
     it 'should apply group to both the metrics' do
-      @socket.should_receive(:send).with('all@test$custom.metric_count:1;all@test$custom.metric_time:450', 0)
+      @socket.should_receive(:send).with('all@test$custom.metric.status:1;all@test$custom.metric.time:450', 0)
       Metricsd::Client.record_hit('custom.metric', true, 0.45, :group => 'test')
     end
 
     it 'should apply source if empty string passed' do
-      @socket.should_receive(:send).with('test@custom.metric_count:1;test@custom.metric_time:450', 0)
+      @socket.should_receive(:send).with('test@custom.metric.status:1;test@custom.metric.time:450', 0)
       Metricsd::Client.record_hit('custom.metric', true, 0.45, :source => '')
     end
 
     it 'should apply source if specified' do
-      @socket.should_receive(:send).with('test2@custom.metric_count:1;test2@custom.metric_time:450', 0)
+      @socket.should_receive(:send).with('test2@custom.metric.status:1;test2@custom.metric.time:450', 0)
       Metricsd::Client.record_hit('custom.metric', true, 0.45, :source => 'test2')
     end
   end
 
   describe '.record_success' do
     it 'should record successes' do
-      @socket.should_receive(:send).with('all@custom.metric_count:1', 0)
+      @socket.should_receive(:send).with('all@custom.metric.status:1', 0)
       Metricsd::Client.record_success('custom.metric')
     end
 
-    it 'should change separator if :sep option is specified' do
-      @socket.should_receive(:send).with('all@custom.metric!count:1', 0)
-      Metricsd::Client.record_success('custom.metric', :sep => '!')
-    end
-
     it 'should apply group if specified' do
-      @socket.should_receive(:send).with('all@test$custom.metric_count:1', 0)
+      @socket.should_receive(:send).with('all@test$custom.metric.status:1', 0)
       Metricsd::Client.record_success('custom.metric', :group => 'test')
     end
 
     it 'should apply source if empty string passed' do
-      @socket.should_receive(:send).with('test@custom.metric_count:1', 0)
+      @socket.should_receive(:send).with('test@custom.metric.status:1', 0)
       Metricsd::Client.record_success('custom.metric', :source => '')
     end
 
     it 'should apply source specified' do
-      @socket.should_receive(:send).with('test2@custom.metric_count:1', 0)
+      @socket.should_receive(:send).with('test2@custom.metric.status:1', 0)
       Metricsd::Client.record_success('custom.metric', :source => 'test2')
     end
   end
 
   describe '.record_failure' do
     it 'should record failures' do
-      @socket.should_receive(:send).with('all@custom.metric_count:-1', 0)
+      @socket.should_receive(:send).with('all@custom.metric.status:-1', 0)
       Metricsd::Client.record_failure('custom.metric')
     end
 
-    it 'should change separator if :sep option is specified' do
-      @socket.should_receive(:send).with('all@custom.metric!count:-1', 0)
-      Metricsd::Client.record_failure('custom.metric', :sep => '!')
-    end
-
     it 'should apply group if specified' do
-      @socket.should_receive(:send).with('all@test$custom.metric_count:-1', 0)
+      @socket.should_receive(:send).with('all@test$custom.metric.status:-1', 0)
       Metricsd::Client.record_failure('custom.metric', :group => 'test')
     end
 
     it 'should apply source if empty string passed' do
-      @socket.should_receive(:send).with('test@custom.metric_count:-1', 0)
+      @socket.should_receive(:send).with('test@custom.metric.status:-1', 0)
       Metricsd::Client.record_failure('custom.metric', :source => '')
     end
 
     it 'should apply source specified' do
-      @socket.should_receive(:send).with('test2@custom.metric_count:-1', 0)
+      @socket.should_receive(:send).with('test2@custom.metric.status:-1', 0)
       Metricsd::Client.record_failure('custom.metric', :source => 'test2')
     end
   end
 
   describe '.record_time' do
     it 'should record time if specified' do
-      @socket.should_receive(:send).with('all@custom.metric_time:450', 0)
+      @socket.should_receive(:send).with('all@custom.metric.time:450', 0)
       Metricsd::Client.record_time('custom.metric', 0.45)
     end
 
     it 'should yield a block if time is not specified' do
-      @socket.should_receive(:send).with(match(/all@custom.metric_time:1\d{2}/), 0)
+      @socket.should_receive(:send).with(match(/all@custom.metric.time:1\d{2}/), 0)
       yielded = false
       Metricsd::Client.record_time('custom.metric') do
         yielded = true
@@ -135,7 +120,7 @@ describe Metricsd::Client do
     end
 
     it 'should use options if time is not specified' do
-      @socket.should_receive(:send).with(match(/all@custom.metric_time:\d+/), 0)
+      @socket.should_receive(:send).with(match(/all@custom.metric.time:\d+/), 0)
       yielded = false
       Metricsd::Client.record_time('custom.metric', {}) do
         yielded = true
@@ -143,23 +128,18 @@ describe Metricsd::Client do
       yielded.should be_true
     end
 
-    it 'should change separator if :sep option is specified' do
-      @socket.should_receive(:send).with('all@custom.metric!time:450', 0)
-      Metricsd::Client.record_time('custom.metric', 0.45, :sep => '!')
-    end
-
     it 'should apply group if specified' do
-      @socket.should_receive(:send).with('all@test$custom.metric_time:450', 0)
+      @socket.should_receive(:send).with('all@test$custom.metric.time:450', 0)
       Metricsd::Client.record_time('custom.metric', 0.45, :group => 'test')
     end
 
     it 'should apply source if empty string passed' do
-      @socket.should_receive(:send).with('test@custom.metric_time:450', 0)
+      @socket.should_receive(:send).with('test@custom.metric.time:450', 0)
       Metricsd::Client.record_time('custom.metric', 0.45, :source => '')
     end
 
     it 'should apply source specified' do
-      @socket.should_receive(:send).with('test2@custom.metric_time:450', 0)
+      @socket.should_receive(:send).with('test2@custom.metric.time:450', 0)
       Metricsd::Client.record_time('custom.metric', 0.45, :source => 'test2')
     end
   end
