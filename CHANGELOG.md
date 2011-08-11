@@ -2,8 +2,9 @@
 
 Features:
 
-  - Time metrics should be recorded with .time suffix (was _time), status metrics - with .status (was _count)
+  - Time metrics should be recorded with ".time" suffix (was "\_time"), status metrics - with ".status" suffix (was "_count")
   - Added Client#record methods (alias of record_value)
+  - Changed group separator to "." (was "$")
   - Removed separator option (it was a temporary solution)
 
 ## 0.2.3 (July 27, 2011)

@@ -44,7 +44,7 @@ describe Metricsd::Client do
     end
 
     it 'should apply group to both the metrics' do
-      @socket.should_receive(:send).with('all@test$custom.metric.status:1;all@test$custom.metric.time:450', 0)
+      @socket.should_receive(:send).with('all@test.custom.metric.status:1;all@test.custom.metric.time:450', 0)
       Metricsd::Client.record_hit('custom.metric', true, 0.45, :group => 'test')
     end
 
@@ -66,7 +66,7 @@ describe Metricsd::Client do
     end
 
     it 'should apply group if specified' do
-      @socket.should_receive(:send).with('all@test$custom.metric.status:1', 0)
+      @socket.should_receive(:send).with('all@test.custom.metric.status:1', 0)
       Metricsd::Client.record_success('custom.metric', :group => 'test')
     end
 
@@ -88,7 +88,7 @@ describe Metricsd::Client do
     end
 
     it 'should apply group if specified' do
-      @socket.should_receive(:send).with('all@test$custom.metric.status:-1', 0)
+      @socket.should_receive(:send).with('all@test.custom.metric.status:-1', 0)
       Metricsd::Client.record_failure('custom.metric', :group => 'test')
     end
 
@@ -129,7 +129,7 @@ describe Metricsd::Client do
     end
 
     it 'should apply group if specified' do
-      @socket.should_receive(:send).with('all@test$custom.metric.time:450', 0)
+      @socket.should_receive(:send).with('all@test.custom.metric.time:450', 0)
       Metricsd::Client.record_time('custom.metric', 0.45, :group => 'test')
     end
 
@@ -151,7 +151,7 @@ describe Metricsd::Client do
     end
 
     it 'should apply group if specified' do
-      @socket.should_receive(:send).with('all@test$custom.metric:23', 0)
+      @socket.should_receive(:send).with('all@test.custom.metric:23', 0)
       Metricsd::Client.record_value('custom.metric', 23, :group => 'test')
     end
 
@@ -167,13 +167,13 @@ describe Metricsd::Client do
 
     it 'should apply default group if specified' do
       Metricsd.default_group = 'grp'
-      @socket.should_receive(:send).with('all@grp$custom.metric:23', 0)
+      @socket.should_receive(:send).with('all@grp.custom.metric:23', 0)
       Metricsd::Client.record_value('custom.metric', 23)
     end
 
     it 'should override default group with the specified one' do
       Metricsd.default_group = 'grp'
-      @socket.should_receive(:send).with('all@group$custom.metric:23', 0)
+      @socket.should_receive(:send).with('all@group.custom.metric:23', 0)
       Metricsd::Client.record_value('custom.metric', 23, :group => 'group')
     end
 
@@ -191,7 +191,7 @@ describe Metricsd::Client do
     end
 
     it 'should apply group if specified' do
-      @socket.should_receive(:send).with('all@test$another.metric:47;all@test$custom.metric:23', 0)
+      @socket.should_receive(:send).with('all@test.another.metric:47;all@test.custom.metric:23', 0)
       Metricsd::Client.record_values({'custom.metric' => 23, 'another.metric' => 47}, :group => 'test')
     end
 

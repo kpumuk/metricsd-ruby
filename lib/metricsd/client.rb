@@ -44,8 +44,8 @@ module Metricsd
   #
   #   # Group metrics using :group option.
   #   Metricsd::Client.record_success("reads", :source => @hbase_table, :group => 'hbase')
-  #   # Group metrics using special syntax "group$metric".
-  #   Metricsd::Client.record_success("hbase$reads", :source => @hbase_table)
+  #   # Group metrics using special syntax "group.metric".
+  #   Metricsd::Client.record_success("hbase.reads", :source => @hbase_table)
   #
   class Client
     class << self
@@ -216,7 +216,7 @@ module Metricsd
       # protocol.
       def pack(key, value, opts)
         group = opts[:group] || Metricsd.default_group || ''
-        key = "#{group}$#{key}" unless group.empty?
+        key = "#{group}.#{key}" unless group.empty?
         opts[:source].empty? ? "#{key}:#{value}" : "#{opts[:source]}@#{key}:#{value}"
       end
     end
