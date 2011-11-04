@@ -113,11 +113,15 @@ module Metricsd
       #
       def record_time(metric, time = nil, opts = {}, &block)
         opts, time = time, nil if Hash === time
+        result = nil
         if time.nil?
           raise ArgumentError, "You should pass a block if time is not given" unless block_given?
-          time = Benchmark.measure(&block).real
+          time = Benchmark.measure do
+            result = block.call
+          end.real
         end
         record_internal({"#{metric}.time" => (time * 1000).round}, opts)
+        result
       end
 
       # Record an integer value.

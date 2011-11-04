@@ -119,6 +119,13 @@ describe Metricsd::Client do
       yielded.should be_true
     end
 
+    it 'should return block value' do
+      @socket.should_receive(:send).with(match(/all@custom.metric.time:\d+/), 0)
+      Metricsd::Client.record_time('custom.metric') do
+        'hello'
+      end.should eq('hello')
+    end
+
     it 'should use options if time is not specified' do
       @socket.should_receive(:send).with(match(/all@custom.metric.time:\d+/), 0)
       yielded = false
