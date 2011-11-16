@@ -14,7 +14,6 @@ describe Metricsd::Client do
     it 'should not throw, but log exceptions on failure' do
       @socket.should_receive(:send).and_raise(Errno::ECONNREFUSED.new('exception from test'))
       Metricsd.logger.should_receive(:error).once.with(match(/exception from test/))
-      Metricsd.logger.should_receive(:error).at_least(1) # stacktrace
       Metricsd::Client.record_value('custom.metric', 5)
     end
 

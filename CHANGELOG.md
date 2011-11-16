@@ -1,3 +1,9 @@
+## 0.2.5 (November 16, 2011)
+
+Bugfixes:
+
+  - Do not fail when MetricsD host could not be resolved
+
 ## 0.2.4 (August 11, 2011)
 
 Features:

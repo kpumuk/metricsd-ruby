@@ -70,6 +70,7 @@ module Metricsd
           }, opts
         )
       end
+      alias :hit :record_hit
 
       # Record succeded boolean event.
       #
@@ -84,6 +85,7 @@ module Metricsd
       def record_success(metric, opts = {})
         record_internal({"#{metric}.status" => 1}, opts)
       end
+      alias :success :record_success
 
       # Record failed boolean event.
       #
@@ -98,6 +100,7 @@ module Metricsd
       def record_failure(metric, opts = {})
         record_internal({"#{metric}.status" => -1}, opts)
       end
+      alias :failure :record_failure
 
       # Record timing info. Time should be a floating point
       # number of seconds.
@@ -123,6 +126,7 @@ module Metricsd
         record_internal({"#{metric}.time" => (time * 1000).round}, opts)
         result
       end
+      alias :time :record_time
 
       # Record an integer value.
       #
@@ -139,6 +143,7 @@ module Metricsd
         record_internal({metric => value.round}, opts)
       end
       alias :record :record_value
+      alias :value :record_value
 
       # Record multiple integer values.
       #
@@ -160,6 +165,7 @@ module Metricsd
       def record_values(metrics, opts = {})
         record_internal(metrics, opts)
       end
+      alias :values :record_values
 
       # Reset and re-establish connection.
       def reset_connection!
@@ -170,9 +176,14 @@ module Metricsd
 
       # Returns a UDP socket used to send metrics to MetricsD.
       def collector_socket
-        @@socket ||= UDPSocket.new.tap do |sock|
-          sock.connect(Metricsd.server_host, Metricsd.server_port)
+        @@lock.synchronize do
+          @@socket ||= UDPSocket.new.tap do |sock|
+            sock.connect(Metricsd.server_host, Metricsd.server_port)
+          end
         end
+      rescue SocketError => e
+        Metricsd.logger.error("Exception occurred while trying to connect to MetricsD (#{Metricsd.server_host}:#{Metricsd.server_port}): #{e.inspect}")
+        nil
       end
 
       # Send informating to the RRD collector daemon using UDP protocol.
@@ -208,11 +219,10 @@ module Metricsd
       # Sends a string to the MetricsD. Should never raise any network-specific
       # exceptions, but log them instead, and silently return.
       def safe_send(msg)
-        collector_socket.send(msg, 0)
+        collector_socket.send(msg, 0) if collector_socket
         true
       rescue Errno::ECONNREFUSED => e
-        Metricsd.logger.error("Exception occurred while trying to send data to metricsd: #{e.inspect}")
-        e.backtrace.each { |line| Metricsd.logger.error(line) }
+        Metricsd.logger.error("Exception occurred while trying to send data to MetricsD (#{Metricsd.server_host}:#{Metricsd.server_port}): #{e.inspect}")
         false
       end
 
@@ -224,5 +234,6 @@ module Metricsd
         opts[:source].empty? ? "#{key}:#{value}" : "#{opts[:source]}@#{key}:#{value}"
       end
     end
+    @@lock = Monitor.new
   end
 end
