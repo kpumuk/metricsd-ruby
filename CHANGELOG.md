@@ -1,3 +1,9 @@
+## 0.2.6 (September 20, 2012)
+
+Features:
+
+  - Added Client#record_status method
+
 ## 0.2.5 (November 16, 2011)
 
 Bugfixes:

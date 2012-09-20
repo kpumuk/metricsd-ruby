@@ -53,7 +53,7 @@ module Metricsd
       # number of seconds.
       #
       # It creates two metrics:
-      # * +your.metric.count+ with counts of failed and succeded events
+      # * +your.metric.status+ with counts of failed and succeded events
       # * +your.metric.time+ with time statistics
       #
       # @param [String] metric is the metric name (like app.docs.upload)
@@ -75,7 +75,7 @@ module Metricsd
       # Record succeded boolean event.
       #
       # It creates a single metric:
-      # * +your.metric.count+ with numbers of failed and succeded events
+      # * +your.metric.status+ with numbers of failed and succeded events
       #
       # @param [String] metric is the metric name (like app.docs.upload)
       # @param [Hash] opts options.
@@ -83,14 +83,14 @@ module Metricsd
       # @option opts [String] :source metric source.
       #
       def record_success(metric, opts = {})
-        record_internal({"#{metric}.status" => 1}, opts)
+        record_status(metric, true, opts)
       end
       alias :success :record_success
 
       # Record failed boolean event.
       #
       # It creates a single metric:
-      # * +your.metric.count+ with numbers of failed and succeded events
+      # * +your.metric.status+ with numbers of failed and succeded events
       #
       # @param [String] metric is the metric name (like app.docs.upload)
       # @param [Hash] opts options.
@@ -98,9 +98,25 @@ module Metricsd
       # @option opts [String] :source metric source.
       #
       def record_failure(metric, opts = {})
-        record_internal({"#{metric}.status" => -1}, opts)
+        record_status(metric, false, opts)
       end
       alias :failure :record_failure
+
+      # Record status event (success or failure).
+      #
+      # It creates a single metric:
+      # * +your.metric.status+ with numbers of failed and succeded events
+      #
+      # @param [String] metric is the metric name (like app.docs.upload)
+      # @param [Boolean] is_success indicating whether event is successful.
+      # @param [Hash] opts options.
+      # @option opts [String] :group metrics group.
+      # @option opts [String] :source metric source.
+      #
+      def record_status(metric, is_success, opts = {})
+        record_internal({"#{metric}.status" => is_success ? 1 : -1}, opts)
+      end
+      alias :status :record_status
 
       # Record timing info. Time should be a floating point
       # number of seconds.
@@ -219,7 +235,9 @@ module Metricsd
       # Sends a string to the MetricsD. Should never raise any network-specific
       # exceptions, but log them instead, and silently return.
       def safe_send(msg)
-        collector_socket.send(msg, 0) if collector_socket
+        # Check if we could connect to the MetricsD
+        return false unless collector_socket
+        collector_socket.send(msg, 0)
         true
       rescue Errno::ECONNREFUSED => e
         Metricsd.logger.error("Exception occurred while trying to send data to MetricsD (#{Metricsd.server_host}:#{Metricsd.server_port}): #{e.inspect}")
